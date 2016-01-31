@@ -50,7 +50,7 @@ class Title extends LerpSprite {
 			Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp); tooltip.close(); lerp(new DarkenKeyframe(0), 60, startGame);
 		}
 	}
-	private function startGame():Void {Main.setScreen(new Bedroom(2));}
+	private function startGame():Void {Main.setScreen(new Definition());}
 	private function titleUp():Void {
 		Main._root.stage.addEventListener(KeyboardEvent.KEY_UP, keyUp);
 		tooltip = new Tooltip(0, 420, "Hit 'Enter' to Start", 800, true, true, 24); addChild(tooltip);
