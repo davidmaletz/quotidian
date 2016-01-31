@@ -28,7 +28,6 @@ import com.ggj.quotidian.Tooltip;
 import flash.display.BitmapData;
 import flash.events.KeyboardEvent;
 import flash.ui.Keyboard;
-import openfl.Assets;
 
 /**
  * ...
@@ -42,7 +41,7 @@ class Mailbox extends LerpSprite {
 	private static var hi = [
 		"Hi, Jim.",
 		"Nice bird, Jim.",
-		"Lookin' trim, Jim?"
+		"Lookin' trim, Jim. Did you lose weight?"
 	];
 	private var tooltip:Tooltip; private var text:DialogBox; private var count:Int; private var action(default,set):Int;
 	private var bg:LerpBitmap; private var input:DialogBox; private var mail:LerpBitmap;  private var read:LerpBitmap; private var b:BitmapData;
@@ -80,7 +79,7 @@ class Mailbox extends LerpSprite {
 				if(mail != null) mail.lerp(new AlphaKeyframe(0), 30);
 				if(read != null) read.lerp(new AlphaKeyframe(1), 30);
 				else {
-					tooltip = new Tooltip(0, 50, "No mail today.", 800, true, false); addChild(tooltip);
+					tooltip = new Tooltip(0, 50, (count == 1)?"No mail today.":"I guess they don't deliver on sundays.", 800, true, false); addChild(tooltip);
 				} lerp(new NullKeyframe(), 180, pan);
 			}
 		}

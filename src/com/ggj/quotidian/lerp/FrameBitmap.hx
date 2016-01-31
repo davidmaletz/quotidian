@@ -39,7 +39,7 @@ class FrameBitmap extends LerpBitmap {
 	}
 	public function play():Void {if(frame < 0) frame = -frame-1;}
 	public function stop():Void {frame = -frame-1;}
-	private function nextFrame():Void {frame++; if(frame >= frames.length) frame = 0; setFrame(frame);}
+	private function nextFrame(off:Int=0):Void {frame++; if(frame >= frames.length-off) frame = 0; setFrame(frame);}
 	private override function enter_frame(e:Event):Void {
 		if(visible && frame >= 0){
 			ct--; if(ct < 0){nextFrame(); ct = count;}

@@ -27,7 +27,6 @@ import flash.display.BitmapData;
 import flash.events.KeyboardEvent;
 import flash.text.TextField;
 import flash.ui.Keyboard;
-import openfl.Assets;
 import openfl.text.TextFieldType;
 
 /**
@@ -41,9 +40,9 @@ class Work extends LerpSprite {
 		"Working..."
 	];
 	private static var work = [
-		"This is your work. You have to type every character one at a time. Doesn't that suck?",
-		"This is your work. You have to type every character one at a time. Doesn't that suck?",
-		"This is your work. You have to type every character one at a time. Doesn't that suck?"
+		"In order to properly merge and articulate these core assets, an acquisition statement outlining the information architecture, leading to a racheting up of convergence across the organic platform is an opportunity without precedent in current applicability transactional modeling.",
+		"In integrating non-aligned structures into existing legacy systems, a holistic gateway blueprint is a backward compatible packaging tangible of immeasurable strategic value in right-sizing conceptual frameworks when thinking outside the box.",
+		"Sed malis detraxit ad, ei vel unum prima dignissim, ad eum labitur antiopam. Fugit abhorreant pro id, voluptaria disputationi his id. At option reformidans quo, nam sint iriure democritum ea. Ad vim altera tincidunt, odio magna vim te. Sit ad cibo regione."
 	];
 	private static var boss_text = [
 		"Yeaaaah, if you could come in to work on Labor Day, that'd be great. We're a bit understaffed.",
@@ -52,20 +51,26 @@ class Work extends LerpSprite {
 	];
 	private var tooltip:Tooltip; private var text:DialogBox; private var count:Int; private var action(default,set):Int;
 	private var bg:LerpBitmap; private var window:LerpBitmap; private var black:LerpSprite;
-	private var work_text:TextField; private var work_index:Int = 0;
+	private var work_text:TextField; private var work_index:Int = 0; private var parchment:FrameBitmap;
 	public function new(count:Int) {
-		super(); this.count = count; action = -1; var col:Int;
+		super(); this.count = count; action = -1;
 		if(count == 2){
-			var b = Assets.getBitmapData("data/work2.png"); var f = new FrameBitmap(b, 10, 6); col = 0x990000;
+			var b = Assets.getBitmapData("data/work2.png"); var f = new FrameBitmap(b, 10, 6);
 			bg = f; bg.y = -(b.height-60)*10; f.addFrame(Assets.getBitmapData("data/work3.png")); f.play(); addChild(bg);
+			parchment = new FrameBitmap(Assets.getBitmapData("data/work4.png"), 10, 0);
+			parchment.addFrame(Assets.getBitmapData("data/work5.png"));
+			parchment.addFrame(Assets.getBitmapData("data/thumbsup.png")); addChild(parchment);
+			work_text = Main.createText("", 30, 0x781100, 400, 300, false, "Alagard");
+			work_text.x = 210; work_text.y = 710; 
 		} else {
-			var b = Assets.getBitmapData("data/work.png"); bg = new LerpBitmap(b, 10); col = 0;
+			var b = Assets.getBitmapData("data/work.png"); bg = new LerpBitmap(b, 10);
 			bg.y = -(b.height-60)*10; addChild(bg);
-		} var window_b = Assets.getBitmapData("data/window.png"); window = new LerpBitmap(window_b, 10);
-		window.visible = false; window.x = 25*10; window.y = 71*10; bg.addChild(window);
-		work_text = Main.createText("", 16, col, window_b.width*10-10-50, window_b.height*10-10-60, false);
-		work_text.x = window.x+5+40; work_text.y = window.y+5+50; bg.addChild(work_text);
-		if(count == 2) window = null; else {
+			var window_b = Assets.getBitmapData("data/window.png"); window = new LerpBitmap(window_b, 10);
+			window.visible = false; window.x = 25*10; window.y = 71*10; bg.addChild(window);
+			work_text = Main.createText("", 16, 0, window_b.width*10-10-50, window_b.height*10-10-60, false);
+			work_text.x = window.x+5+40; work_text.y = window.y+5+50; 
+		} bg.addChild(work_text);
+		if(count != 2){
 			black = new LerpSprite(); var g = black.graphics; g.beginFill(0); g.drawRect(180, 690, 480, 360); g.endFill();
 			bg.addChild(black);
 		}
@@ -77,7 +82,7 @@ class Work extends LerpSprite {
 	public override function destroy(e){
 		super.destroy(e); Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
 	}
-	private function doTurnOn():Void {if(black != null) black.visible = false; openWindow();}
+	private function doTurnOn():Void {if(parchment != null) parchment.setFrame(1); if(black != null) black.visible = false; openWindow();}
 	private function keyUp(e:KeyboardEvent):Void {
 		if(Main.paused) return;
 		switch(action){
@@ -86,13 +91,13 @@ class Work extends LerpSprite {
 			}
 			case OPEN_WINDOW: if(e.keyCode == Keyboard.O){
 				if(window != null) window.visible = true; tooltip.close(); action = -1;
-				lerp(new NullKeyframe(), 30, doWork);
+				lerp(new NullKeyframe(), 30, doWork); if(parchment != null) parchment.visible = false;
 			}
 			case WORK: work_index++; if(work_index == work[count].length){
 				tooltip.close(); work_text.text = work[count]; action = -1; bg.lerp(new PositionKeyframe(), 200, boss);
 			} else {work_text.text = work[count].substring(0, work_index); action = -1; action = WORK;}
 			case BOSS: if(e.keyCode == Keyboard.Y){
-				tooltip.close(); bg.lerp(new NodKeyframe(2*Math.PI), 30, wait); action = -1;
+				tooltip.close(); bg.lerp(new NodKeyframe(((count==2)?-1:2)*Math.PI), 30, (count == 2)?thumbsup:wait); action = -1;
 			}
 		}
 	}
@@ -103,10 +108,10 @@ class Work extends LerpSprite {
 		Main._root.stage.focus = null; action = a; if(a == -1){saturation = 1; clearLerp();} else lerp(new SaturationKeyframe(0), Main.SATURATION, Main.gray); return a;
 	}
 	private function turnOn():Void {
-		action = TURN_ON; tooltip = new Tooltip(0, 450, "Hit 'F10' to Turn On Computer", 800, true, false); addChild(tooltip);
+		action = TURN_ON; tooltip = new Tooltip(0, 450, "Hit 'F10' "+((count==2)?"Unroll":"to Turn On")+" Computer", 800, true, false); addChild(tooltip);
 	}
 	private function openWindow():Void {
-		action = OPEN_WINDOW; tooltip = new Tooltip(0, 450, "Hit 'O' to Open Outlook", 800, true, false); addChild(tooltip);
+		action = OPEN_WINDOW; tooltip = new Tooltip(0, 450, "Hit 'O' to "+((count==2)?"Light Candle":"Open Outlook"), 800, true, false); addChild(tooltip);
 	}
 	private function doWork():Void {
 		action = WORK; tooltip = new Tooltip(0, 450, "Mash Keys to Work", 800, true, false); addChild(tooltip);
@@ -115,7 +120,8 @@ class Work extends LerpSprite {
 		text = new DialogBox(100, 450, 600, 100, boss_text[count], bossDone); addChild(text);
 	}
 	private function bossDone():Void {action = BOSS; tooltip = new Tooltip(0, 560, "Hit 'Y' to Nod", 800, true, false); addChild(tooltip);}
-	private function wait():Void {lerp(new NullKeyframe(), 60, endScene);}
+	private function thumbsup():Void {text.close(); lerp(new NullKeyframe(), 200, wait);}
+	private function wait():Void {if(parchment != null){parchment.setFrame(2); parchment.visible = true;} lerp(new NullKeyframe(), (count == 2)?120:60, endScene);}
 	private function endScene():Void {lerp(new DarkenKeyframe(0), 60, nextScene);}
 	private function nextScene():Void {Main.setScreen(new Mailbox(count));}
 }

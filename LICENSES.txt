@@ -1,0 +1,15 @@
+Here is a list of all open source assets used in this game, and their licenses.
+
+Sound Effects from FreeSound
+Licenced under the Attribution 3.0 license: http://creativecommons.org/licenses/by/3.0/
+	
+Fonts
+------
+Xeliard - Alex G - http://glukhov.me/
+Licenced under the Attribution 2.0 license: https://creativecommons.org/licenses/by/2.0/ca/
+
+Thintel - Skeddles - http://samkeddy.com/
+This font is licenced under Creative Commons Attribution 4.0 International License. That means it is free to download and distribute, royalty free, and you are free to use it in personal and commercial works.  If you use it, a link to my website http://samkeddy.com/ would be appreciated.
+	
+Alagard - Hewett Tsoi
+Give credit if used. That's it.

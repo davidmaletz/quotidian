@@ -43,9 +43,13 @@ class LerpSprite extends Sprite {
 		if(tracks != null && !tracks.nextFrame(this)) tracks = null;
 	}
 	private function set_saturation(f:Float):Float {
-		saturation = f; if(f == 1) filters = []; else {
+		saturation = f;
+		#if flash
+		if(f == 1) filters = []; else {
 			var r = 0.2989, g = 0.5870, b = 0.1141, fi=1-f;
 			filters = [new ColorMatrixFilter([1.0-(1.0-r)*fi, g*fi, b*fi, 0, 0, r*fi, 1.0-(1.0-g)*fi, b*fi, 0, 0, r*fi, g*fi, 1.0-(1.0-b)*fi, 0, 0, 0, 0, 0, 1, 0])];
-		} return f;
+		}
+		#end
+		return f;
 	}
 }

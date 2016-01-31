@@ -18,12 +18,17 @@
 	
 	<!-- assets -->
 	<icon path="assets/openfl.svg" />
-	<assets path="assets/data" rename="data" />
-	<assets path="assets/bgm" rename="data/sound" type="music" include="*.ogg" unless="flash" />
-	<assets path="assets/sfx" rename="data/sound" type="sound" include="*.ogg" unless="flash" />
-	<assets path="assets/bgm" rename="data/sound" type="music" include="*.mp3" if="flash" />
-	<assets path="assets/sfx" rename="data/sound" type="sound" include="*.mp3" if="flash" />
+	<assets path="assets/data" rename="data" />=
+	<assets path="assets/bgm" rename="data/sound" type="music" include="*.mp3" />
+	<assets path="assets/sfx" rename="data/sound" type="sound" include="*.mp3" />
 	<!-- optimize output
 	<haxeflag name="-dce full" /> -->
-	
+	<section if="cpp">
+		<section if="debug">
+			<haxedef name="DEBUG" />
+			<haxelib name="crashdumper" />
+			<haxedef name="HXCPP_STACK_LINE" />
+			<haxedef name="HXCPP_STACK_TRACE" />
+		</section>
+	</section>
 </project>

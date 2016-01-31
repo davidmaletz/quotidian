@@ -21,12 +21,12 @@ import com.ggj.quotidian.lerp.FrameBitmap;
 import com.ggj.quotidian.lerp.LerpBitmap;
 import com.ggj.quotidian.lerp.LerpSprite;
 import com.ggj.quotidian.lerp.PositionKeyframe;
+import com.ggj.quotidian.lerp.RandomFrameBitmap;
 import com.ggj.quotidian.lerp.SaturationKeyframe;
 import com.ggj.quotidian.lerp.ShakeKeyframe;
 import flash.display.BitmapData;
 import flash.events.KeyboardEvent;
 import flash.ui.Keyboard;
-import openfl.Assets;
 
 /**
  * ...
@@ -41,16 +41,21 @@ class Bedroom extends LerpSprite {
 	private var bg:LerpBitmap; private var bedroom:BitmapData; private var curtain:LerpBitmap; private var toothbrush:LerpBitmap;
 	private var brush_ct:Int = 0; private var b:BitmapData; private var bed:LerpBitmap;
 	public function new(count:Int) {
-		super(); this.count = count; action = -1; bedroom = Assets.getBitmapData("data/bedroom.png");
+		super(); this.count = count; action = -1; bedroom = Assets.getBitmapData("data/bedroom"+((count==2)?"2":"")+".png");
 		bg = new LerpBitmap(bedroom, 10); addChild(bg);
 		if(count == 1){
 			var g = new FrameBitmap(Assets.getBitmapData("data/ghost-1.png"), 10, 20);
 			for(i in 2...6) g.addFrame(Assets.getBitmapData("data/ghost-"+i+".png"));
 			for(i in 1...6) g.addFrame(Assets.getBitmapData("data/ghost-"+(6-i)+".png"));
 			g.x = 1780; g.y = 200; g.play(); bg.addChild(g);
-		} curtain = new LerpBitmap(Assets.getBitmapData("data/curtains.png"), 10);
-		curtain.alpha = 0; curtain.x = 149*10; curtain.y = 16*10; bg.addChild(curtain);
-		b = Assets.getBitmapData("data/toothbrush.png"); toothbrush = new LerpBitmap(b, 10);
+		} else if(count == 2){
+			var g = new RandomFrameBitmap(Assets.getBitmapData("data/monster-1.png"), 10, 20);
+			for(i in 2...4) g.addFrame(Assets.getBitmapData("data/monster-"+i+".png"));
+			g.x = 1160; g.y = 60; g.play(); bg.addChild(g);
+		} curtain = new LerpBitmap(Assets.getBitmapData("data/curtains"+((count==2)?"2":"")+".png"), 10);
+		curtain.alpha = 0; if(count == 2){curtain.x = 1620; curtain.y = 150;}
+		else {curtain.x = 149*10; curtain.y = 16*10;} bg.addChild(curtain);
+		b = Assets.getBitmapData("data/"+((count==2)?"knife":"toothbrush")+".png"); toothbrush = new LerpBitmap(b, 10);
 		toothbrush.y = bedroom.height*10; bg.addChild(toothbrush);
 	}
 	public override function init(e){
@@ -78,12 +83,13 @@ class Bedroom extends LerpSprite {
 			}
 			case SLEEP: if(e.keyCode == Keyboard.Z){
 				var d = DarkenKeyframe.addDarkness(this, 0.05); if(d == 0){
-					action = -1; if(count < 2) lerp(new NullKeyframe(), 100, nextScene); return;
+					action = -1; if(count < 2) lerp(new NullKeyframe(), 100, nextScene); else lerp(new NullKeyframe(), 500, title); return;
 				} action = -1; action = SLEEP; lerp(new DarkenKeyframe(), Math.round((1-d*d)*200));
 				if(!hasTrack(ShakeKeyframe)) lerp(new ShakeKeyframe(3*Math.PI), 5);
 			}
 		}
 	}
+	private function title():Void {Main.setScreen(new Title());}
 	private function nextScene():Void {Main.setScreen(new Kitchen(count+1));}
 	private function pan():Void {
 		bg.lerp(new PositionKeyframe(-(bedroom.width-80)*10), 200, closeCurtains);
@@ -105,7 +111,7 @@ class Bedroom extends LerpSprite {
 		lerp(new NullKeyframe(), 60, fadeBed);
 	}
 	private function fadeBed():Void {
-		bed = new LerpBitmap(Assets.getBitmapData("data/bed.png"), 10); bed.alpha = 0; addChild(bed);
+		bed = new LerpBitmap(Assets.getBitmapData("data/bed"+((count==2)?"2":"")+".png"), 10); bed.alpha = 0; addChild(bed);
 		bed.lerp(new AlphaKeyframe(), 60, sleep);
 	}
 	private function sleep():Void {

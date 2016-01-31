@@ -25,5 +25,5 @@ class RandomFrameBitmap extends FrameBitmap {
 	public function new(b:BitmapData, scale:Float, count:Int, x:Float=-1, y:Float=-1) {
 		super(b, scale, count, x, y);
 	}
-	private override function nextFrame():Void {setFrame((Math.random() < 0.8)?0:1);}
+	private override function nextFrame(off:Int=0):Void {if(Math.random() < 0.8) super.nextFrame(1); else setFrame(frames.length-1);}
 }

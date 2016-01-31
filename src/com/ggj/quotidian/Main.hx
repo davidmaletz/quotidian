@@ -28,7 +28,6 @@ import flash.media.SoundTransform;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import flash.ui.Keyboard;
-import openfl.Assets;
 import openfl.display.Sprite;
 import openfl.Lib;
 import openfl.media.SoundChannel;
@@ -40,13 +39,16 @@ import openfl.text.TextFormatAlign;
  */
 class Main extends Sprite 
 {
-	//Vultre: 137 30;  130, 35
-	public static inline var SATURATION = 600;
+	public static inline var SATURATION = 1200;
 	public static var TITLE = Assets.getFont("data/Xeliard.ttf");
 	public static var FONT = Assets.getFont("data/Thintel.ttf");
+	public static var FONT2 = Assets.getFont("data/Alagard.ttf");
 	public static var _root:LerpSprite; private static var instance:Main; private var top:Sprite;
 	public static var _scaled:LerpSprite;
 	public function new() {
+		#if DEBUG
+		var crashDumper = new crashdumper.CrashDumper(crashdumper.SessionData.generateID("Quotidian_")); 
+		#end
 		instance = this; stage.scaleMode = StageScaleMode.NO_SCALE; super();
 		_root = new LerpSprite(); addChild(_root); _scaled = new LerpSprite(); addChild(_scaled); 
 		top = new Sprite(); addChild(top); resize(null);
@@ -78,12 +80,7 @@ class Main extends Sprite
 		t.selectable = false; t.embedFonts = true; t.text = txt; t.width=w; t.height=h; t.multiline = true; t.wordWrap = true; return t;
 	}
 	public static function playSFX(id:String, startTime:Float=0, loops:Int=0, sndTransform:SoundTransform=null):SoundChannel {
-		#if flash
-		var ext = ".mp3";
-		#else
-		var ext = ".ogg";
-		#end
-		return Assets.getSound("data/sound/"+id+ext).play(startTime, loops, sndTransform);
+		var s = Assets.getSound("data/sound/"+id+".mp3"); return (s == null)?null:s.play(startTime, loops, sndTransform);
 	}
 	private static var giveUp:Bool = false;
 	private function keyUp(e:KeyboardEvent):Void {
