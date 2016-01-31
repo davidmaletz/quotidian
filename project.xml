@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- NMML reference: https://gist.github.com/1763850 -->
+	
+	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
+	<meta title="Quotidian" package="com.ggj.quotidian.Quotidian" version="1.0.0" company="David Maletz" />
+	
+	<!-- output -->
+	<app main="com.ggj.quotidian.Main" file="Quotidian" path="bin" />
+	
+	<window background="#000000" fps="60" />
+	<window width="800" height="600" unless="mobile" />
+	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
+	
+	<!-- classpath, haxe libs -->
+	<source path="src" />
+	<haxelib name="openfl" />
+	
+	<!-- assets -->
+	<icon path="assets/openfl.svg" />
+	<assets path="assets/data" rename="data" />
+	<assets path="assets/bgm" rename="data/sound" type="music" include="*.ogg" unless="flash" />
+	<assets path="assets/sfx" rename="data/sound" type="sound" include="*.ogg" unless="flash" />
+	<assets path="assets/bgm" rename="data/sound" type="music" include="*.mp3" if="flash" />
+	<assets path="assets/sfx" rename="data/sound" type="sound" include="*.mp3" if="flash" />
+	<!-- optimize output
+	<haxeflag name="-dce full" /> -->
+	
+</project>
