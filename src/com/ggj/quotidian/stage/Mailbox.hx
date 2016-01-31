@@ -27,6 +27,7 @@ import com.ggj.quotidian.lerp.SaturationKeyframe;
 import com.ggj.quotidian.Tooltip;
 import flash.display.BitmapData;
 import flash.events.KeyboardEvent;
+import flash.media.SoundChannel;
 import flash.ui.Keyboard;
 
 /**
@@ -35,13 +36,11 @@ import flash.ui.Keyboard;
  */
 class Mailbox extends LerpSprite {
 	private static inline var SAY_HI = 0; private static inline var CHECK_MAIL = 1;
-	private static var dialog = [
-		"A long day of work done, you return home, checking the mail and saying hi to your neighbor Jim as usual."
-	];
+	private static var dialog = [];
 	private static var hi = [
-		"Hi, Jim.",
-		"Nice bird, Jim.",
-		"Lookin' trim, Jim. Did you lose weight?"
+		"Hey Jim. Nice day, isn't it?",
+		"Hey Jim. Nice day, isn't it?",
+		"Hey Jim. Nice day, isn't it?"
 	];
 	private var tooltip:Tooltip; private var text:DialogBox; private var count:Int; private var action(default,set):Int;
 	private var bg:LerpBitmap; private var input:DialogBox; private var mail:LerpBitmap;  private var read:LerpBitmap; private var b:BitmapData;
@@ -59,11 +58,14 @@ class Mailbox extends LerpSprite {
 			vulture.play(); bg.addChild(vulture);
 		}
 	}
+	private var bgm:SoundChannel;
 	public override function init(e){
+		bgm = Main.playSFX((count==2)?"cityfire":"neighborhood", 0, 10000);
 		Main._root.stage.addEventListener(KeyboardEvent.KEY_UP, keyUp);
 		super.init(e); DarkenKeyframe.setDarkness(this, 0); lerp(new DarkenKeyframe(), 60, sceneUp);
 	}
 	public override function destroy(e){
+		bgm.stop();
 		super.destroy(e); Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
 	}
 	private function keyUp(e:KeyboardEvent):Void {
@@ -75,11 +77,11 @@ class Mailbox extends LerpSprite {
 				action = -1; lerp(new NullKeyframe(), 150, endScene);
 			}
 			case CHECK_MAIL: if(e.keyCode == Keyboard.M){
-				tooltip.close(); action = -1; if(text != null) text.close();
+				if(count == 0) Main.playSFX("mail"); tooltip.close(); action = -1; if(text != null) text.close();
 				if(mail != null) mail.lerp(new AlphaKeyframe(0), 30);
 				if(read != null) read.lerp(new AlphaKeyframe(1), 30);
 				else {
-					tooltip = new Tooltip(0, 50, (count == 1)?"No mail today.":"I guess they don't deliver on sundays.", 800, true, false); addChild(tooltip);
+					tooltip = new Tooltip(0, 50, (count == 1)?"No mail today.":"I guess they don't deliver on Sundays.", 800, true, false); addChild(tooltip);
 				} lerp(new NullKeyframe(), 180, pan);
 			}
 		}

@@ -36,9 +36,9 @@ import flash.ui.Keyboard;
 class Kitchen extends LerpSprite {
 	private static inline var TAP_ON = 0; private static inline var TAP_OFF = 1; private static inline var POUR = 2; private static inline var DRINK = 3;
 	private static var dialog = [
-		"Today is monday. You didn't really want to get up in the morning, but you had no choice. Perhaps a cup of coffee to help ease your spirit?"
+		"Your daily ritual begins with a nice cup of coffee."
 	];
-	private var tooltip:Tooltip; private var text:DialogBox; private var count:Int; private var action(default,set):Int;
+	private var tooltip:Tooltip; private var text:Tooltip; private var count:Int; private var action(default,set):Int;
 	private var bg:LerpBitmap; private var kitchen:BitmapData; private var faucet:FrameBitmap; private var water:FrameBitmap;
 	private var cup_small:LerpBitmap; private var cup:LerpBitmap; private var cup_pour:LerpBitmap; private var grinds:FrameBitmap;
 	private var puddle:FrameBitmap;
@@ -55,9 +55,10 @@ class Kitchen extends LerpSprite {
 			water = new FrameBitmap(Assets.getBitmapData("data/"+w+"1.png"), 10, 4);
 			water.addFrame(Assets.getBitmapData("data/"+w+"2.png")); water.play();
 			water.x = (count==0)?480:450; water.y = 380; water.visible = false; bg.addChild(water);
-		} else {
-			grinds = new FrameBitmap(Assets.getBitmapData("data/grinds-1.png"), 10, 6);
-			grinds.addFrame(Assets.getBitmapData("data/grinds-2.png"));
+		} if(count != 2){
+			var g = (count == 1)?"grinds":"coffee-made";
+			grinds = new FrameBitmap(Assets.getBitmapData("data/"+g+"-1.png"), 10, 6);
+			grinds.addFrame(Assets.getBitmapData("data/"+g+"-2.png"));
 			grinds.x = 1510; grinds.y = 330; grinds.play(); grinds.visible = false; bg.addChild(grinds);
 		} if(count == 2){
 			puddle = new FrameBitmap(Assets.getBitmapData("data/spider-puddle1.png"), 10, 6);
@@ -70,11 +71,12 @@ class Kitchen extends LerpSprite {
 	}
 	public override function init(e){
 		Main._root.stage.addEventListener(KeyboardEvent.KEY_UP, keyUp); Main.playSFX("alarmclick");
+		if(count == 2) channel = Main.playSFX("cityfire", 0, 10000);
 		super.init(e); DarkenKeyframe.setDarkness(this, 0); lerp(new NullKeyframe(), 240, _start);
 	}
 	private var bed:LerpBitmap;
 	private function _start():Void {
-		bed = new LerpBitmap(Assets.getBitmapData("data/bed.png"), 10); addChild(bed);
+		bed = new LerpBitmap(Assets.getBitmapData("data/bed"+((count==2)?"2":"")+".png"), 10); addChild(bed);
 		lerp(new DarkenKeyframe(0.5), 60, hold);
 	}
 	private function hold():Void {
@@ -84,10 +86,11 @@ class Kitchen extends LerpSprite {
 		lerp(new DarkenKeyframe(0), 60, _start3);
 	}
 	private function _start3():Void {
-		bed.parent.removeChild(bed); lerp(new NullKeyframe(), 60, _start4);
+		if(channel != null){channel.stop(); channel = null;} bed.parent.removeChild(bed); lerp(new NullKeyframe(), 60, _start4);
 	}
 	private function _start4():Void {lerp(new DarkenKeyframe(), 60, sceneUp);}
 	public override function destroy(e){
+		if(channel != null){channel.stop(); channel = null;}
 		super.destroy(e); Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
 	}
 	private var channel:SoundChannel;
@@ -96,7 +99,8 @@ class Kitchen extends LerpSprite {
 		switch(action){
 			case TAP_ON: if(e.keyCode == Keyboard.T){
 				tooltip.close(); if(text != null) text.close(); action = -1; faucet.setFrame(1); if(water != null) water.visible = true;
-				Main.playSFX("sinksqueak"); if(count == 0) channel = Main.playSFX("tapwater", 0, 10000); lerp(new NullKeyframe(), 60, turnTapOff);
+				Main.playSFX("sinksqueak"); if(count == 0) channel = Main.playSFX("tapwater", 0, 10000);
+				else if(count == 2) channel = Main.playSFX("spiders", 0, 10000); lerp(new NullKeyframe(), 60, turnTapOff);
 			}
 			case TAP_OFF: if(e.keyCode == Keyboard.T){
 				if(channel != null){channel.stop(); channel = null;}
@@ -105,7 +109,9 @@ class Kitchen extends LerpSprite {
 			}
 			case POUR: if(e.keyCode == Keyboard.P){
 				tooltip.close(); action = -1; cup_small.visible = false; cup_pour.visible = true;
-				if(count == 0) Main.playSFX("cuppour"); lerp(new NullKeyframe(), 60, hideCup);
+				if(count == 0) Main.playSFX("cuppour"); else if(count == 2){
+					channel = Main.playSFX("spiders", 0, 10000);
+				} lerp(new NullKeyframe(), 60, hideCup);
 			}
 			case DRINK: if(e.keyCode == Keyboard.D){
 				tooltip.close(); action = -1; cup.visible = true;
@@ -114,14 +120,16 @@ class Kitchen extends LerpSprite {
 		}
 	}
 	private function wait():Void {
-		if(count == 0) Main.playSFX("coffeeslurp"); lerp(new NullKeyframe(), 120, endScene);
+		if(count == 1) Main.playSFX("crunch-beans");
+		else Main.playSFX("coffeeslurp");
+		lerp(new NullKeyframe(), 120, endScene);
 	}
 	private function endScene():Void {lerp(new DarkenKeyframe(0), 60, nextScene);}
 	private function nextScene():Void {Main.setScreen(new Work(count));}
 	private function hideCup():Void {
 		cup_pour.lerp(new AlphaKeyframe(0), 5, (count == 1)?null:drink);
-		if(count == 1){
-			grinds.visible = true; grinds.alpha = 0; grinds.lerp(new AlphaKeyframe(), 5, waitDrink);
+		if(grinds != null){
+			if(count == 1) Main.playSFX("beandrop"); grinds.visible = true; grinds.alpha = 0; grinds.lerp(new AlphaKeyframe(), 5, waitDrink);
 		} if(puddle != null) puddle.visible = true;
 	}
 	private function waitDrink():Void {
@@ -146,7 +154,7 @@ class Kitchen extends LerpSprite {
 		Main._root.stage.focus = null; action = a; if(a == -1){saturation = 1; clearLerp();} else lerp(new SaturationKeyframe(0), Main.SATURATION, Main.gray); return a;
 	}
 	private function sceneUp():Void {
-		if(count < dialog.length){text = new DialogBox(100, 50, 600, 100, dialog[count], turnTapOn); addChild(text);} else turnTapOn();
+		if(count < dialog.length){text = new Tooltip(100, 50, dialog[count], 600, true, false); lerp(new NullKeyframe(), 30, turnTapOn); addChild(text);} else turnTapOn();
 		cup_small.lerp(new AlphaKeyframe(), 5);
 	}
 	private function turnTapOn():Void {

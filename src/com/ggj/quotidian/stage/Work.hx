@@ -25,6 +25,7 @@ import com.ggj.quotidian.lerp.PositionKeyframe;
 import com.ggj.quotidian.lerp.SaturationKeyframe;
 import flash.display.BitmapData;
 import flash.events.KeyboardEvent;
+import flash.media.SoundChannel;
 import flash.text.TextField;
 import flash.ui.Keyboard;
 import openfl.text.TextFieldType;
@@ -36,9 +37,7 @@ import openfl.text.TextFieldType;
 class Work extends LerpSprite {
 	private static inline var OPEN_WINDOW = 0; private static inline var WORK = 1; private static inline var BOSS = 2;
 	private static inline var TURN_ON = 3;
-	private static var dialog = [
-		"Working..."
-	];
+	private static var dialog = [];
 	private static var work = [
 		"In order to properly merge and articulate these core assets, an acquisition statement outlining the information architecture, leading to a racheting up of convergence across the organic platform is an opportunity without precedent in current applicability transactional modeling.",
 		"In integrating non-aligned structures into existing legacy systems, a holistic gateway blueprint is a backward compatible packaging tangible of immeasurable strategic value in right-sizing conceptual frameworks when thinking outside the box.",
@@ -75,22 +74,28 @@ class Work extends LerpSprite {
 			bg.addChild(black);
 		}
 	}
+	private var bgm:SoundChannel;
 	public override function init(e){
+		bgm = Main.playSFX((count==2)?"work-chant":"officeambience", 0, 10000);
 		Main._root.stage.addEventListener(KeyboardEvent.KEY_UP, keyUp);
 		super.init(e); DarkenKeyframe.setDarkness(this, 0); lerp(new DarkenKeyframe(), 60, sceneUp);
 	}
 	public override function destroy(e){
-		super.destroy(e); Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
+		bgm.stop(); super.destroy(e); Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
 	}
-	private function doTurnOn():Void {if(parchment != null) parchment.setFrame(1); if(black != null) black.visible = false; openWindow();}
+	private function doTurnOn():Void {
+		Main.playSFX((count == 2)?"parchment":"windows"); if(parchment != null) parchment.setFrame(1); if(black != null) black.visible = false;
+		if(count == 2) openWindow(); else lerp(new NullKeyframe(), 90, openWindow);
+	}
 	private function keyUp(e:KeyboardEvent):Void {
 		if(Main.paused) return;
 		switch(action){
 			case TURN_ON: if(e.keyCode == Keyboard.F10){
-				action = -1; if(text != null) text.close(); tooltip.close(); lerp(new NullKeyframe(), 120, doTurnOn);
+				action = -1; if(text != null) text.close(); tooltip.close();
+				if(count != 2){Main.playSFX("powerbutton"); lerp(new NullKeyframe(), 120, doTurnOn);} else doTurnOn();
 			}
 			case OPEN_WINDOW: if(e.keyCode == Keyboard.O){
-				if(window != null) window.visible = true; tooltip.close(); action = -1;
+				if(window != null) window.visible = true; tooltip.close(); action = -1; if(count == 2) Main.playSFX("candlelight");
 				lerp(new NullKeyframe(), 30, doWork); if(parchment != null) parchment.visible = false;
 			}
 			case WORK: work_index++; if(work_index == work[count].length){

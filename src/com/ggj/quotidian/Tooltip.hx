@@ -24,8 +24,8 @@ import com.ggj.quotidian.lerp.LerpSprite;
  */
 class Tooltip extends LerpSprite {
 	private var doFlash:Bool;
-	public function new(x:Float, y:Float, msg:String, w:Int=1000, center:Bool=false, flash:Bool=true) {
-		super(); this.x = x; this.y = y; var t = Main.createText(msg, 16, 0xffffff, w, 1000, center); addChild(t); doFlash = flash;
+	public function new(x:Float, y:Float, msg:String, w:Int=1000, center:Bool=false, flash:Bool=true, sz:Int=16) {
+		super(); this.x = x; this.y = y; var t = Main.createText(msg, sz, 0xffffff, w, 1000, center); addChild(t); doFlash = flash;
 		graphics.beginFill(0); graphics.drawRect((center?(w-t.textWidth)*0.5:0)+t.x-5, t.y-5, t.textWidth+10, t.textHeight+10); graphics.endFill();
 	}
 	public function close():Void {

@@ -25,7 +25,9 @@ import com.ggj.quotidian.lerp.RandomFrameBitmap;
 import com.ggj.quotidian.lerp.SaturationKeyframe;
 import com.ggj.quotidian.lerp.ShakeKeyframe;
 import flash.display.BitmapData;
+import flash.events.Event;
 import flash.events.KeyboardEvent;
+import flash.media.SoundChannel;
 import flash.ui.Keyboard;
 
 /**
@@ -34,9 +36,7 @@ import flash.ui.Keyboard;
  */
 class Bedroom extends LerpSprite {
 	private static inline var BRUSH_TEETH = 0; private static inline var CURTAIN = 1; private static inline var SLEEP = 2;
-	private static var dialog = [
-		"Time to sleep..."
-	];
+	private static var dialog = [];
 	private var tooltip:Tooltip; private var text:DialogBox; private var count:Int; private var action(default,set):Int;
 	private var bg:LerpBitmap; private var bedroom:BitmapData; private var curtain:LerpBitmap; private var toothbrush:LerpBitmap;
 	private var brush_ct:Int = 0; private var b:BitmapData; private var bed:LerpBitmap;
@@ -63,7 +63,12 @@ class Bedroom extends LerpSprite {
 		super.init(e); DarkenKeyframe.setDarkness(this, 0); lerp(new DarkenKeyframe(), 60, sceneUp);
 	}
 	public override function destroy(e){
+		if(channel != null){channel.stop(); channel = null;} 
 		super.destroy(e); Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
+	}
+	private var sleep_ct = 1;
+	private function soundComplete(e:Event):Void {
+		sleep_ct = -sleep_ct+1; if(sleep_ct > 2) sleep_ct = 1;
 	}
 	private function keyUp(e:KeyboardEvent):Void {
 		if(Main.paused) return;
@@ -73,25 +78,31 @@ class Bedroom extends LerpSprite {
 				if(e.keyCode == Keyboard.J){
 					brush_ct++; toothbrush.x = 200; action = -1; action = BRUSH_TEETH; Main.playSFX("brush1");
 					if(brush_ct == 31){
-						action = -1; tooltip.close(); toothbrush.x = 0;
+						action = -1; tooltip.close(); toothbrush.x = 0; Main.playSFX("spitting");
 						toothbrush.lerp(new PositionKeyframe(toothbrush.x, bedroom.height*10), 30, pan);
 					} else action = BRUSH_TEETH;
 				}
 			} else if(e.keyCode == Keyboard.F){brush_ct++; toothbrush.x = 0; action = -1; action = BRUSH_TEETH; Main.playSFX("brush2");}
 			case CURTAIN: if(e.keyCode == Keyboard.C){
+				if(count == 1){if(channel != null){channel.stop(); channel = null;}}
 				curtain.lerp(new AlphaKeyframe(), 5, goToBed); tooltip.close(); action = -1;
+				Main.playSFX("shutter");
 			}
 			case SLEEP: if(e.keyCode == Keyboard.Z){
-				var d = DarkenKeyframe.addDarkness(this, 0.05); if(d == 0){
-					action = -1; if(count < 2) lerp(new NullKeyframe(), 100, nextScene); else lerp(new NullKeyframe(), 500, title); return;
+				if(sleep_ct > 0){
+					Main.playSFX("sleepdamage"+sleep_ct).addEventListener(Event.SOUND_COMPLETE, soundComplete); sleep_ct = -sleep_ct;
+				} var d = DarkenKeyframe.addDarkness(this, 0.05); if(d == 0){
+					action = -1; if(count < 2) lerp(new NullKeyframe(), 100, nextScene); else lerp(new NullKeyframe(), 300, title); return;
 				} action = -1; action = SLEEP; lerp(new DarkenKeyframe(), Math.round((1-d*d)*200));
 				if(!hasTrack(ShakeKeyframe)) lerp(new ShakeKeyframe(3*Math.PI), 5);
 			}
 		}
 	}
-	private function title():Void {Main.setScreen(new Title());}
+	private function title():Void {Main.setScreen(new Ending());}
 	private function nextScene():Void {Main.setScreen(new Kitchen(count+1));}
+	private var channel:SoundChannel;
 	private function pan():Void {
+		if(count != 0) channel = Main.playSFX((count == 1)?"ghost":"kraken", 0, 10000);
 		bg.lerp(new PositionKeyframe(-(bedroom.width-80)*10), 200, closeCurtains);
 	}
 	private function set_action(a:Int):Int {
@@ -101,14 +112,14 @@ class Bedroom extends LerpSprite {
 		if(count < dialog.length){text = new DialogBox(100, 50, 600, 100, dialog[count], brushTeeth); addChild(text);} else brushTeeth();
 	}
 	private function brushTeeth():Void {
-		action = BRUSH_TEETH; tooltip = new Tooltip(0, 450, "Alternate 'F' and 'J' to Brush Teeth", 800, true, false); addChild(tooltip);
-		toothbrush.lerp(new PositionKeyframe(0, (bedroom.height-b.height)*10), 30);
+		action = BRUSH_TEETH; tooltip = new Tooltip(0, 50, "Alternate 'F' and 'J' to Brush Teeth", 800, true, false); addChild(tooltip);
+		toothbrush.lerp(new PositionKeyframe(0, (bedroom.height-b.height+4)*10), 30);
 	}
 	private function closeCurtains():Void {
 		action = CURTAIN; tooltip = new Tooltip(0, 450, "Hit 'C' to Close Curtains", 800, true, false); addChild(tooltip);
 	}
 	private function goToBed():Void {
-		lerp(new NullKeyframe(), 60, fadeBed);
+		lerp(new NullKeyframe(), (count == 2)?180:60, fadeBed);
 	}
 	private function fadeBed():Void {
 		bed = new LerpBitmap(Assets.getBitmapData("data/bed"+((count==2)?"2":"")+".png"), 10); bed.alpha = 0; addChild(bed);

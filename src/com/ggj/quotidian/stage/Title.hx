@@ -18,9 +18,11 @@ package com.ggj.quotidian.stage;
 import com.ggj.quotidian.DialogBox;
 import com.ggj.quotidian.lerp.AlphaKeyframe;
 import com.ggj.quotidian.lerp.DarkenKeyframe;
+import com.ggj.quotidian.lerp.LerpBitmap;
 import com.ggj.quotidian.lerp.LerpSprite;
 import com.ggj.quotidian.Tooltip;
 import flash.events.KeyboardEvent;
+import flash.media.SoundChannel;
 import flash.ui.Keyboard;
 
 /**
@@ -31,11 +33,15 @@ class Title extends LerpSprite {
 	private var tooltip:Tooltip;
 	public function new(){
 		super(); var t = Main.createText("Quotidian", 100, 0xffffff, 800, 1000, true, "Xeliard"); t.y = 50; addChild(t);
+		var i = Assets.getBitmapData("data/title.png"), b = new LerpBitmap(i, 10); b.x = 800-i.width*10; b.y = 150; addChild(b);
 	}
+	private var bgm:SoundChannel;
 	public override function init(e){
+		bgm = Main.playSFX("title", 0, 10000);
 		super.init(e); DarkenKeyframe.setDarkness(this, 0); lerp(new DarkenKeyframe(), 100, titleUp);
 	}
 	public override function destroy(e){
+		bgm.stop();
 		super.destroy(e); Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
 	}
 	private function keyUp(e:KeyboardEvent):Void {
@@ -44,11 +50,11 @@ class Title extends LerpSprite {
 			Main._root.stage.removeEventListener(KeyboardEvent.KEY_UP, keyUp); tooltip.close(); lerp(new DarkenKeyframe(0), 60, startGame);
 		}
 	}
-	private function startGame():Void {Main.setScreen(new Kitchen(0));}
+	private function startGame():Void {Main.setScreen(new Bedroom(2));}
 	private function titleUp():Void {
 		Main._root.stage.addEventListener(KeyboardEvent.KEY_UP, keyUp);
-		tooltip = new Tooltip(0, 250, "Hit 'Enter' to Start", 800, true); addChild(tooltip);
-		var t = Main.createText("David Maletz - Natalie Maletz - Matthew Bumb", 16, 0xffffff, 800, 1000, true);
-		t.y = 450; var l = new LerpSprite(); l.addChild(t); l.alpha = 0; addChild(l); l.lerp(new AlphaKeyframe(), 60);
+		tooltip = new Tooltip(0, 420, "Hit 'Enter' to Start", 800, true, true, 24); addChild(tooltip);
+		var t = Main.createText("David Maletz - Natalie Maletz - Matthew Bumb", 16, 0x666666, 800, 1000, true);
+		t.y = 480; var l = new LerpSprite(); l.addChild(t); l.alpha = 0; addChild(l); l.lerp(new AlphaKeyframe(), 60);
 	}
 }
