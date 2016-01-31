@@ -1,3 +1,19 @@
+/******************************************************************************* 
+ * Copyright (C) 2013  David Maletz
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.ggj.quotidian.stage;
 import com.ggj.quotidian.DialogBox;
 import com.ggj.quotidian.lerp.AlphaKeyframe;
@@ -26,16 +42,17 @@ class Kitchen extends LerpSprite {
 	private var bg:LerpBitmap; private var kitchen:BitmapData; private var faucet:FrameBitmap; private var water:FrameBitmap;
 	private var cup_small:LerpBitmap; private var cup:LerpBitmap; private var cup_pour:LerpBitmap;
 	public function new(count:Int) {
-		super(); this.count = count; action = -1; kitchen = Assets.getBitmapData("data/kitchen.png");
+		super(); this.count = count; action = -1; kitchen = Assets.getBitmapData("data/kitchen"+((count==2)?"2":"")+".png");
 		bg = new LerpBitmap(kitchen, 10); addChild(bg);
 		faucet = new FrameBitmap(Assets.getBitmapData("data/faucet_off.png"), 10, 0);
 		faucet.addFrame(Assets.getBitmapData("data/faucet_on.png")); faucet.x = 260; faucet.y = 320; bg.addChild(faucet);
 		cup_small = new LerpBitmap(Assets.getBitmapData("data/cup_small.png"), 10);
 		cup_small.x = 430; cup_small.y = 470; cup_small.alpha = 0; bg.addChild(cup_small);
-		if(count == 0){
-			water = new FrameBitmap(Assets.getBitmapData("data/water1.png"), 10, 4);
-			water.addFrame(Assets.getBitmapData("data/water2.png")); water.play();
-			water.x = 480; water.y = 380; water.visible = false; bg.addChild(water);
+		if(count != 1){
+			var w = (count == 0)?"water":"spider";
+			water = new FrameBitmap(Assets.getBitmapData("data/"+w+"1.png"), 10, 4);
+			water.addFrame(Assets.getBitmapData("data/"+w+"2.png")); water.play();
+			water.x = (count==0)?480:450; water.y = 380; water.visible = false; bg.addChild(water);
 		} cup = new LerpBitmap(Assets.getBitmapData("data/cup"+(count+1)+".png"), 10);
 		cup.x = 1320; cup.y = kitchen.height*10; cup.visible = false; bg.addChild(cup);
 		cup_pour = new LerpBitmap(Assets.getBitmapData("data/cup_pour"+(count+1)+".png"), 10);

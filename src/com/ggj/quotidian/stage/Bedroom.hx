@@ -1,3 +1,19 @@
+/******************************************************************************* 
+ * Copyright (C) 2013  David Maletz
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package com.ggj.quotidian.stage;
 import com.ggj.quotidian.lerp.AlphaKeyframe;
 import com.ggj.quotidian.lerp.DarkenKeyframe;
@@ -62,12 +78,13 @@ class Bedroom extends LerpSprite {
 			}
 			case SLEEP: if(e.keyCode == Keyboard.Z){
 				var d = DarkenKeyframe.addDarkness(this, 0.05); if(d == 0){
-					action = -1; if(count < 2) Main.setScreen(new Kitchen(count+1)); return;
+					action = -1; if(count < 2) lerp(new NullKeyframe(), 100, nextScene); return;
 				} action = -1; action = SLEEP; lerp(new DarkenKeyframe(), Math.round((1-d*d)*200));
 				if(!hasTrack(ShakeKeyframe)) lerp(new ShakeKeyframe(3*Math.PI), 5);
 			}
 		}
 	}
+	private function nextScene():Void {Main.setScreen(new Kitchen(count+1));}
 	private function pan():Void {
 		bg.lerp(new PositionKeyframe(-(bedroom.width-80)*10), 200, closeCurtains);
 	}
