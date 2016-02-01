@@ -113,7 +113,7 @@ class Work extends LerpSprite {
 		Main._root.stage.focus = null; action = a; if(a == -1){saturation = 1; clearLerp();} else lerp(new SaturationKeyframe(0), Main.SATURATION, Main.gray); return a;
 	}
 	private function turnOn():Void {
-		action = TURN_ON; tooltip = new Tooltip(0, 450, "Hit 'F10' "+((count==2)?"Unroll":"to Turn On")+" Computer", 800, true, false); addChild(tooltip);
+		action = TURN_ON; tooltip = new Tooltip(0, 450, "Hit 'F10' to "+((count==2)?"Unroll":"Turn On")+" Computer", 800, true, false); addChild(tooltip);
 	}
 	private function openWindow():Void {
 		action = OPEN_WINDOW; tooltip = new Tooltip(0, 450, "Hit 'O' to "+((count==2)?"Light Candle":"Open Outlook"), 800, true, false); addChild(tooltip);

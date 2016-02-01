@@ -127,7 +127,7 @@ class Kitchen extends LerpSprite {
 	private function endScene():Void {lerp(new DarkenKeyframe(0), 60, nextScene);}
 	private function nextScene():Void {Main.setScreen(new Work(count));}
 	private function hideCup():Void {
-		cup_pour.lerp(new AlphaKeyframe(0), 5, (count == 1)?null:drink);
+		cup_pour.lerp(new AlphaKeyframe(0), 5, (grinds != null)?null:drink);
 		if(grinds != null){
 			if(count == 1) Main.playSFX("beandrop"); grinds.visible = true; grinds.alpha = 0; grinds.lerp(new AlphaKeyframe(), 5, waitDrink);
 		} if(puddle != null) puddle.visible = true;

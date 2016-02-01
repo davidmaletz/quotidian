@@ -29,14 +29,15 @@ class LerpTrack {
 	private inline function newKeyframe():Keyframe {return Type.createEmptyInstance(keyframe_class);}
 	public inline function setLerp(a:Dynamic, to:Keyframe, frames:Int, onComplete:Void->Void=null):Void {
 		from = newKeyframe(); from.set(to); from.setFromObject(a); from.setFrame(0); frame = 0; this.to = to; to.setFrame(frames);
-		/*fireComplete();*/ this.onComplete = onComplete;
+		if(complete != null){Main._root.removeEventListener(Event.ENTER_FRAME, complete); complete = null;} this.onComplete = onComplete;
 	}
-	private function doComplete():Void {var f = onComplete; onComplete = null; if(f != null) f();}
+	private var complete:Event->Void;
+	private function doFire(f:Void->Void, e:Event):Void {
+		if(complete != null){Main._root.removeEventListener(Event.ENTER_FRAME, complete); complete = null; f();}
+	}
 	private inline function fireComplete():Void {
 		var f = onComplete; onComplete = null; if(f != null){
-			var complete:Event->Void = null; function func(e:Event):Void {
-				Main._root.removeEventListener(Event.ENTER_FRAME, complete); f();
-			} complete = func; Main._root.addEventListener(Event.ENTER_FRAME, complete);
+			complete = doFire.bind(f); Main._root.addEventListener(Event.ENTER_FRAME, complete);
 		}
 	}
 	public inline function clear():Void {from = null; to = null; frame = 0; fireComplete();}
